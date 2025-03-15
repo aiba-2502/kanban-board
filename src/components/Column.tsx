@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
-import { TaskCard } from './TaskCard';
+import { TaskCard, TaskCardProps } from './TaskCard';
 import { Column as ColumnType } from '../types';
 import { useBoardStore } from '../store/boardStore';
 
-interface ColumnProps {
+export interface ColumnProps {
   column: ColumnType;
 }
 
@@ -101,7 +101,12 @@ export function Column({ column }: ColumnProps) {
       
       <div ref={setNodeRef} className="space-y-3 flex-1">
         {column.tasks.map((task) => (
-          <TaskCard key={task.id} task={task} columnId={column.id} />
+          <React.Fragment key={task.id}>
+            <TaskCard
+              task={task}
+              columnId={column.id}
+            />
+          </React.Fragment>
         ))}
       </div>
 

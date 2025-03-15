@@ -5,7 +5,7 @@ import { Task } from '../types';
 import { Clock, Edit2, Trash2, X, Check } from 'lucide-react';
 import { useBoardStore } from '../store/boardStore';
 
-interface TaskCardProps {
+export interface TaskCardProps {
   task: Task;
   columnId: string;
   isDragging?: boolean;
@@ -137,7 +137,7 @@ export function TaskCard({ task, columnId, isDragging = false }: TaskCardProps) 
       <div className="flex items-center mt-4 text-xs text-gray-500">
         <Clock size={14} className="mr-1" />
         <span>
-          {new Date(task.createdAt).toLocaleDateString()}
+          {new Date(task.created_at).toLocaleDateString()}
         </span>
       </div>
     </div>

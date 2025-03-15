@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      target: development
+    container_name: kanban-board-app
+    volumes:
+      - .:/app
+      - /app/node_modules  # この行を追加: node_modulesをホストと分離
+    ports:
+      - "5173:5173"
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=kanban
+      - DB_PASSWORD=kanban_password
+      - DB_NAME=kanban_board
+    command: sh -c "node server.js & npm run dev -- --host"
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:10.11
+    container_name: kanban-board-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: kanban_board
+      MYSQL_USER: kanban
+      MYSQL_PASSWORD: kanban_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./docker/mariadb/init:/docker-entrypoint-initdb.d
+
+volumes:
+  mariadb_data:

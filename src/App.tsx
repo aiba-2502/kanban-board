@@ -1,26 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, closestCorners } from '@dnd-kit/core';
 import { Column } from './components/Column';
 import { useBoardStore } from './store/boardStore';
-import { Plus } from 'lucide-react';
+import { Plus, RefreshCw, AlertCircle } from 'lucide-react';
 import { TaskCard } from './components/TaskCard';
-import { Task } from './types';
+import { Task, Column as ColumnType } from './types';
 
 function App() {
-  const { columns, moveTask, addColumn } = useBoardStore();
+  const { columns, isLoading, error, fetchBoard, moveTask, addColumn } = useBoardStore();
   const [newColumnTitle, setNewColumnTitle] = useState('');
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeColumnId, setActiveColumnId] = useState<string | null>(null);
 
+  useEffect(() => {
+    fetchBoard();
+  }, [fetchBoard]);
+
   const handleDragStart = (event: DragStartEvent) => {
     const taskId = event.active.id as string;
-    const columnId = columns.find(col => 
-      col.tasks.some(task => task.id === taskId)
+    const columnId = columns.find((col: ColumnType) => 
+      col.tasks.some((task: Task) => task.id === taskId)
     )?.id || null;
     
     if (columnId) {
-      const task = columns.find(col => col.id === columnId)?.tasks.find(t => t.id === taskId);
+      const task = columns.find((col: ColumnType) => col.id === columnId)?.tasks.find((t: Task) => t.id === taskId);
       if (task) {
         setActiveTask(task);
         setActiveColumnId(columnId);
@@ -32,7 +36,7 @@ function App() {
     const { active, over } = event;
     
     // カラム以外の場所にドロップした場合は移動をキャンセル
-    if (!over || !columns.some(col => col.id === over.id)) {
+    if (!over || !columns.some((col: ColumnType) => col.id === over.id)) {
       setActiveTask(null);
       setActiveColumnId(null);
       return;
@@ -40,8 +44,8 @@ function App() {
 
     if (active.id !== over.id) {
       const taskId = active.id as string;
-      const fromColumnId = columns.find(col => 
-        col.tasks.some(task => task.id === taskId)
+      const fromColumnId = columns.find((col: ColumnType) => 
+        col.tasks.some((task: Task) => task.id === taskId)
       )?.id;
       const toColumnId = over.id as string;
 
@@ -54,13 +58,52 @@ function App() {
     setActiveColumnId(null);
   };
 
-  const handleAddColumn = () => {
+  const handleAddColumn = async () => {
     if (newColumnTitle.trim()) {
-      addColumn(newColumnTitle);
+      await addColumn(newColumnTitle);
       setNewColumnTitle('');
       setIsAddingColumn(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed"
+        style={{
+          backgroundImage: 'url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2000&q=80")',
+        }}
+      >
+        <div className="bg-white/80 backdrop-blur-sm p-8 rounded-lg flex flex-col items-center">
+          <RefreshCw size={48} className="animate-spin text-blue-500 mb-4" />
+          <p className="text-lg">カンバンボードをロード中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed"
+        style={{
+          backgroundImage: 'url("https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2000&q=80")',
+        }}
+      >
+        <div className="bg-white/80 backdrop-blur-sm p-8 rounded-lg">
+          <div className="flex items-center gap-2 text-red-500 mb-4">
+            <AlertCircle size={24} />
+            <h2 className="text-xl font-bold">エラーが発生しました</h2>
+          </div>
+          <p className="mb-4">{error}</p>
+          <button 
+            onClick={() => fetchBoard()} 
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          >
+            再試行
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -90,7 +133,7 @@ function App() {
               placeholder="Column title"
               className="px-4 py-2 border rounded-lg"
               value={newColumnTitle}
-              onChange={(e) => setNewColumnTitle(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewColumnTitle(e.target.value)}
             />
             <button
               onClick={handleAddColumn}
@@ -113,7 +156,7 @@ function App() {
           collisionDetection={closestCorners}
         >
           <div className="flex gap-6 overflow-x-auto pb-4">
-            {columns.map((column) => (
+            {columns.map((column: ColumnType) => (
               <Column key={column.id} column={column} />
             ))}
           </div>
