@@ -117,10 +117,22 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       const fromColumn = get().columns.find((col) => col.id === fromColumnId);
       const toColumn = get().columns.find((col) => col.id === toColumnId);
       
-      if (!fromColumn || !toColumn) return;
+      if (!fromColumn || !toColumn) {
+        console.error('Column not found:', { fromColumnId, toColumnId });
+        return;
+      }
       
       const task = fromColumn.tasks.find((t) => t.id === taskId);
-      if (!task) return;
+      if (!task) {
+        console.error('Task not found:', { taskId, fromColumnId });
+        return;
+      }
+      
+      // タスクのコピーを作成して新しいカラムに追加するためのオブジェクト
+      const taskToMove = {
+        ...task,
+        column_id: toColumnId
+      };
       
       set((state) => ({
         columns: state.columns.map((col) => {
@@ -133,7 +145,7 @@ export const useBoardStore = create<BoardState>((set, get) => ({
           if (col.id === toColumnId) {
             return {
               ...col,
-              tasks: [...col.tasks, task],
+              tasks: [...col.tasks, taskToMove],
             };
           }
           return col;
@@ -150,7 +162,10 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         }),
       });
       
-      if (!response.ok) throw new Error('Failed to move task');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to move task');
+      }
       
     } catch (error) {
       console.error('Error moving task:', error);

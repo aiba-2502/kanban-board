@@ -35,23 +35,51 @@ function App() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
-    // カラム以外の場所にドロップした場合は移動をキャンセル
-    if (!over || !columns.some((col: ColumnType) => col.id === over.id)) {
+    // ドロップ先がない場合は移動をキャンセル
+    if (!over) {
       setActiveTask(null);
       setActiveColumnId(null);
       return;
     }
 
-    if (active.id !== over.id) {
-      const taskId = active.id as string;
-      const fromColumnId = columns.find((col: ColumnType) => 
-        col.tasks.some((task: Task) => task.id === taskId)
-      )?.id;
-      const toColumnId = over.id as string;
+    const taskId = active.id as string;
+    const fromColumnId = columns.find((col: ColumnType) => 
+      col.tasks.some((task: Task) => task.id === taskId)
+    )?.id;
 
-      if (fromColumnId && fromColumnId !== toColumnId) {
-        moveTask(taskId, fromColumnId, toColumnId);
+    if (!fromColumnId) {
+      setActiveTask(null);
+      setActiveColumnId(null);
+      return;
+    }
+
+    // ドロップ先がカラムの場合
+    const isOverColumn = columns.some((col: ColumnType) => col.id === over.id);
+    
+    let toColumnId: string;
+    
+    if (isOverColumn) {
+      // カラムの上にドロップした場合
+      toColumnId = over.id as string;
+    } else {
+      // タスクの上にドロップした場合、そのタスクが属するカラムを特定
+      const overTaskId = over.id as string;
+      const overTaskColumn = columns.find((col: ColumnType) => 
+        col.tasks.some((task: Task) => task.id === overTaskId)
+      );
+      
+      if (!overTaskColumn) {
+        setActiveTask(null);
+        setActiveColumnId(null);
+        return;
       }
+      
+      toColumnId = overTaskColumn.id;
+    }
+
+    // 同じカラム内での移動は無視
+    if (fromColumnId !== toColumnId) {
+      moveTask(taskId, fromColumnId, toColumnId);
     }
 
     setActiveTask(null);

@@ -230,17 +230,29 @@ app.put('/api/tasks/:id/move', async (req, res) => {
         [to_column_id, newPosition, id]
       );
       
-      // 移動元カラムのタスク位置を再調整 - 別々のステートメントとして実行
+      // 移動元カラムのタスク位置を再調整
       await connection.query('SET @pos := -1');
       await connection.query(
         'UPDATE tasks SET position = (@pos := @pos + 1) WHERE column_id = ? ORDER BY position',
         [from_column_id]
       );
       
+      // 移動先カラムのタスク位置も再調整
+      await connection.query('SET @pos := -1');
+      await connection.query(
+        'UPDATE tasks SET position = (@pos := @pos + 1) WHERE column_id = ? ORDER BY position',
+        [to_column_id]
+      );
+      
       await connection.commit();
       connection.release();
       
-      res.json({ id, column_id: to_column_id, position: newPosition });
+      res.json({ 
+        id, 
+        column_id: to_column_id, 
+        position: newPosition,
+        message: 'Task moved successfully'
+      });
     } catch (error) {
       await connection.rollback();
       connection.release();
