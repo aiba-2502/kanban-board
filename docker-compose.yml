@@ -7,8 +7,22 @@ services:
       target: development
     container_name: kanban-board-app
     volumes:
-      - .:/app
-      - /app/node_modules  # この行を追加: node_modulesをホストと分離
+      # プロジェクトルートを特定のサブディレクトリにマウントする方法
+      - ./src:/app/src
+      - ./index.html:/app/index.html
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./tsconfig.app.json:/app/tsconfig.app.json
+      - ./tsconfig.node.json:/app/tsconfig.node.json
+      - ./postcss.config.js:/app/postcss.config.js
+      - ./tailwind.config.js:/app/tailwind.config.js
+      - ./vite.config.ts:/app/vite.config.ts
+      - ./server.js:/app/server.js
+      - ./.env:/app/.env
+      - ./docker/mariadb:/app/docker/mariadb
+      - ./docker/nginx.conf:/app/docker/nginx.conf
+      # 永続化するデータボリューム
+      - node_modules_volume:/app/node_modules
     ports:
       - "5173:5173"
       - "3001:3001"
@@ -19,7 +33,14 @@ services:
       - DB_USER=kanban
       - DB_PASSWORD=kanban_password
       - DB_NAME=kanban_board
-    command: sh -c "node server.js & npm run dev -- --host"
+    # ログを標準出力に表示する設定に変更
+    tty: true
+    stdin_open: true
+    command: >
+      sh -c "
+        node server.js &
+        VITE_CJS_IGNORE_WARNING=true npm run dev -- --host
+      "
     depends_on:
       - db
 
@@ -40,3 +61,4 @@ services:
 
 volumes:
   mariadb_data:
+  node_modules_volume:

@@ -11,8 +11,12 @@ export default defineConfig({
     watch: {
       usePolling: true,
     },
-    host: true, // needed for the Docker container port mapping to work
+    host: true, // Docker内で正しくホスティングするために必要
     strictPort: true,
-    port: 5173, // you can replace this port with any port
+    port: 5173, // 固定ポート
+    // ログ出力レベルを指定
+    hmr: {
+      clientPort: 5173
+    }
   }
 });

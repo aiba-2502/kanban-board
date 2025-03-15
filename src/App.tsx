@@ -113,37 +113,37 @@ function App() {
       }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8 bg-white/80 backdrop-blur-sm p-4 rounded-lg">
-          <h1 className="text-3xl font-bold text-gray-900">Kanban Board</h1>
+        <div className="flex items-center justify-between mb-8 bg-black/70 backdrop-blur-sm p-4 rounded-lg">
+          <h1 className="text-2xl font-bold text-white">Kanban Board</h1>
           {!isAddingColumn && (
             <button
               onClick={() => setIsAddingColumn(true)}
-              className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
             >
-              <Plus size={20} className="mr-2" />
+              <Plus size={16} className="mr-2" />
               Add Column
             </button>
           )}
         </div>
 
         {isAddingColumn && (
-          <div className="mb-6 flex gap-2 items-center bg-white/80 backdrop-blur-sm p-4 rounded-lg">
+          <div className="mb-6 flex gap-2 items-center bg-black/70 backdrop-blur-sm p-4 rounded-lg">
             <input
               type="text"
               placeholder="Column title"
-              className="px-4 py-2 border rounded-lg"
+              className="px-4 py-2 border rounded-lg text-sm"
               value={newColumnTitle}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewColumnTitle(e.target.value)}
             />
             <button
               onClick={handleAddColumn}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
             >
               Add
             </button>
             <button
               onClick={() => setIsAddingColumn(false)}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              className="px-4 py-2 text-white hover:bg-gray-800 rounded-lg text-sm"
             >
               Cancel
             </button>
@@ -154,20 +154,25 @@ function App() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd} 
           collisionDetection={closestCorners}
-        >
-          <div className="flex gap-6 overflow-x-auto pb-4">
-            {columns.map((column: ColumnType) => (
-              <Column key={column.id} column={column} />
-            ))}
-          </div>
-          <DragOverlay>
-            {activeTask && activeColumnId && (
-              <div className="transform-none">
-                <TaskCard task={activeTask} columnId={activeColumnId} isDragging />
+          children={
+            <>
+              <div className="flex gap-6 overflow-x-auto pb-4">
+                {columns.map((column: ColumnType) => (
+                  <React.Fragment key={column.id}>
+                    <Column column={column} />
+                  </React.Fragment>
+                ))}
               </div>
-            )}
-          </DragOverlay>
-        </DndContext>
+              <DragOverlay>
+                {activeTask && activeColumnId && (
+                  <div className="transform-none">
+                    <TaskCard task={activeTask} columnId={activeColumnId} isDragging />
+                  </div>
+                )}
+              </DragOverlay>
+            </>
+          }
+        />
       </div>
     </div>
   );

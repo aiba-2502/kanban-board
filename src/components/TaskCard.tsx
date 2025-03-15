@@ -30,7 +30,7 @@ export function TaskCard({ task, columnId, isDragging = false }: TaskCardProps) 
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: transition || undefined,
   };
 
   const handleSave = (e: React.MouseEvent) => {
@@ -67,35 +67,36 @@ export function TaskCard({ task, columnId, isDragging = false }: TaskCardProps) 
   if (isEditing) {
     return (
       <div 
-        className="bg-white p-4 rounded-lg shadow-sm border border-gray-200"
+        className="bg-black/80 p-4 rounded-lg shadow-sm border border-gray-700"
         onClick={(e) => e.stopPropagation()}
       >
         <input
           type="text"
           value={editedTitle}
           onChange={(e) => setEditedTitle(e.target.value)}
-          className="w-full p-2 border rounded mb-2"
+          className="w-full p-2 border rounded mb-2 text-sm bg-gray-900 text-white border-gray-700"
           placeholder="タスクのタイトル"
           autoFocus
         />
         <textarea
           value={editedDescription}
           onChange={(e) => setEditedDescription(e.target.value)}
-          className="w-full p-2 border rounded mb-2"
+          className="w-full p-2 border rounded mb-2 text-sm resize-none bg-gray-900 text-white border-gray-700"
           placeholder="説明"
+          rows={Math.max(2, editedDescription.split('\n').length)}
         />
         <div className="flex justify-end gap-2">
           <button
             onClick={handleSave}
-            className="text-green-600 hover:text-green-700 p-2 rounded hover:bg-gray-100"
+            className="text-green-500 hover:text-green-400 p-2 rounded hover:bg-gray-800"
           >
-            <Check size={16} />
+            <Check size={14} />
           </button>
           <button
             onClick={handleCancel}
-            className="text-gray-600 hover:text-gray-700 p-2 rounded hover:bg-gray-100"
+            className="text-gray-400 hover:text-gray-300 p-2 rounded hover:bg-gray-800"
           >
-            <X size={16} />
+            <X size={14} />
           </button>
         </div>
       </div>
@@ -107,7 +108,7 @@ export function TaskCard({ task, columnId, isDragging = false }: TaskCardProps) 
       ref={setNodeRef}
       style={style}
       className={`
-        relative bg-white p-4 rounded-lg shadow-sm border border-gray-200 
+        relative bg-black/80 p-4 rounded-lg shadow-sm border border-gray-700 
         ${!isEditing ? 'cursor-move' : ''} hover:shadow-md transition-shadow
         ${isDragging ? 'shadow-lg ring-2 ring-blue-500' : ''}
       `}
@@ -117,25 +118,25 @@ export function TaskCard({ task, columnId, isDragging = false }: TaskCardProps) 
         {...listeners}
         className="flex justify-between items-start mb-2"
       >
-        <h3 className="font-medium text-gray-900">{task.title}</h3>
+        <h3 className="font-medium text-white text-sm">{task.title}</h3>
       </div>
-      <div className="flex gap-1 absolute top-2 right-2 bg-white/80 rounded-lg">
+      <div className="flex gap-1 absolute top-2 right-2 bg-black/80 rounded-lg">
         <button
           onClick={handleEdit}
-          className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-1 text-gray-400 hover:text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
         >
-          <Edit2 size={16} />
+          <Edit2 size={14} />
         </button>
         <button
           onClick={handleDelete}
-          className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+          className="p-1 text-red-500 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-colors"
         >
-          <Trash2 size={16} />
+          <Trash2 size={14} />
         </button>
       </div>
-      <p className="text-sm text-gray-600 mt-2">{task.description}</p>
+      <p className="text-xs text-gray-300 mt-2 whitespace-pre-wrap break-words max-h-24 overflow-y-auto">{task.description}</p>
       <div className="flex items-center mt-4 text-xs text-gray-500">
-        <Clock size={14} className="mr-1" />
+        <Clock size={12} className="mr-1" />
         <span>
           {new Date(task.created_at).toLocaleDateString()}
         </span>
