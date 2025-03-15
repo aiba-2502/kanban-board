@@ -5,6 +5,7 @@ import { useBoardStore } from './store/boardStore';
 import { Plus, RefreshCw, AlertCircle } from 'lucide-react';
 import { TaskCard } from './components/TaskCard';
 import { Task, Column as ColumnType } from './types';
+import { JapaneseClock } from './components/JapaneseClock';
 
 function App() {
   const { columns, isLoading, error, fetchBoard, moveTask, addColumn } = useBoardStore();
@@ -202,6 +203,7 @@ function App() {
           }
         />
       </div>
+      <JapaneseClock />
     </div>
   );
 }
